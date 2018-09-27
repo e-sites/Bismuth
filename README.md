@@ -31,29 +31,5 @@ pod install
 # Implementation
 
 ```swift
-import Palladium
-
-func authorize() {
-    Palladium.shared.requestAuthorization { error in
-        print("Authorization result: \(String(describing: error))")
-    }
-}
-
-func schedule() {
-    let content = UNMutableNotificationContent()
-    content.body = "This is a notification"
-    content.title = Date().description
-    var metaData = MetaData(id: "123")
-    metaData.tags = [ "tag1", "tag2" ]
-    let date = Date(timeIntervalSinceNow: 5)
-    Palladium.shared.add(content: content, in: metaData, at: date) { request, error in
-        print("Scheduled: \(String(describing: request)), error: \(String(describing: error))")
-    }
-}
-
-func cancel() {
-    Palladium.shared.cancelNotifications(tags: [ "tag2" ]) { identifiers, error in
-        print("Cancelled: \(identifiers?.count ?? 0), error: \(String(describing: error))")
-    }
-}
+import Bismuth
 ```
