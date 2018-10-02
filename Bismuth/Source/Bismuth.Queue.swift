@@ -86,7 +86,8 @@ extension Bismuth {
             if !isBusy || _backgroundTask != .invalid {
                 return
             }
-            _config.logProxy?("Started background task, timeout after: \(Int(UIApplication.shared.backgroundTimeRemaining))s")
+            _backgroundTimer?.invalidate()
+            _config.logProxy?("Started background task, timeout after: \(ceil(UIApplication.shared.backgroundTimeRemaining))s")
             let time = UIApplication.shared.backgroundTimeRemaining - 5
             _backgroundTimer = Timer(timeInterval: time,
                                      target: self,
