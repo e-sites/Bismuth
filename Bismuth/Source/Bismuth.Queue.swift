@@ -183,9 +183,9 @@ extension Bismuth {
                 _endBackgroundTask()
                 return
             }
-            let extra = UIApplication.shared.applicationState == .active ?
-                "in foreground" :
-                "in background, timeout in \(round(UIApplication.shared.backgroundTimeRemaining))s"
+            let extra = UIApplication.shared.applicationState == .background && _backgroundTask != nil ?
+            "in background, timeout in \(round(UIApplication.shared.backgroundTimeRemaining))s" :
+            "in foreground"
 
             _config.logProxy?("Queue items left: \(count) (\(extra))")
             _config.logProxy?("-=> \(item)")
