@@ -183,7 +183,7 @@ extension Bismuth {
                 _endBackgroundTask()
                 return
             }
-            let extra = UIApplication.shared.applicationState == .background && _backgroundTask != nil ?
+            let extra = UIApplication.shared.applicationState == .background && _backgroundTask != .invalid ?
             "in background, timeout in \(round(UIApplication.shared.backgroundTimeRemaining))s" :
             "in foreground"
 
