@@ -10,3 +10,14 @@ import Foundation
 
 public class Bismuth {
 }
+
+
+@discardableResult
+func synchronized<T>(_ lock: Any, block: () throws -> T) rethrows -> T {
+    objc_sync_enter(lock)
+    defer {
+        objc_sync_exit(lock)
+    }
+
+    return try block()
+}

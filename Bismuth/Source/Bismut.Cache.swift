@@ -10,28 +10,33 @@ import Foundation
 
 extension Bismuth {
     class Cache<T: BismuthQueueable> {
+
+        private let _dispatchQueue = DispatchQueue(label: "com.esites.library.bismuth.cache", qos: .utility)
+
         func write(_ items: [T], key: String) {
-            do {
-                let jsonEncoder = JSONEncoder()
-                var jsonArray: [[String: Any]] = []
+            _dispatchQueue.async {
+                do {
+                    let jsonEncoder = JSONEncoder()
+                    var jsonArray: [[String: Any]] = []
 
-                for item in items {
-                    let data = try jsonEncoder.encode(item)
-                    guard var dictionary = try JSONSerialization.jsonObject(with: data, options: .allowFragments) as? [String: Any] else {
-                        continue
+                    for item in items {
+                        let data = try jsonEncoder.encode(item)
+                        guard var dictionary = try JSONSerialization.jsonObject(with: data, options: .allowFragments) as? [String: Any] else {
+                            continue
+                        }
+                        dictionary["bismuthRetryTime"] = item.bismuthRetryTime
+                        jsonArray.append(dictionary)
                     }
-                    dictionary["bismuthRetryTime"] = item.bismuthRetryTime
-                    jsonArray.append(dictionary)
+
+                    let data = try JSONSerialization.data(withJSONObject: jsonArray, options: .prettyPrinted)
+
+                    self._makeCacheDirectory()
+                    let cacheFile = "\(key).cache"
+                    let url = URL(fileURLWithPath: self._path(for: cacheFile))
+                    try? data.write(to: url)
+                } catch let error {
+                    print("Error writing: \(error)")
                 }
-
-                let data = try JSONSerialization.data(withJSONObject: jsonArray, options: .prettyPrinted)
-
-                _makeCacheDirectory()
-                let cacheFile = "\(key).cache"
-                let url = URL(fileURLWithPath: _path(for: cacheFile))
-                try? data.write(to: url)
-            } catch let error {
-                print("Error writing: \(error)")
             }
         }
 

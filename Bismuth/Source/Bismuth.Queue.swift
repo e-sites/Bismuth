@@ -29,21 +29,24 @@ extension Bismuth {
 
         private var _items: [T] = [] {
             didSet {
-                _storeItemsInCache()
+                self._storeTimer?.invalidate()
+                self._storeTimer = Timer(timeInterval: 0.25, target: self, selector: #selector(_storeItemsInCache), userInfo: nil, repeats: false)
+                RunLoop.main.add(self._storeTimer!, forMode: .common)
             }
         }
 
         public var count: Int {
-            return _items.count
+            return synchronized(self) { return _items.count }
         }
 
         public var isEmpty: Bool {
-            return _items.isEmpty
+            return synchronized(self) { return _items.isEmpty }
         }
 
         public weak var delegate: BismuthQueueDelegate?
         private var _backgroundTask: UIBackgroundTaskIdentifier = .invalid
         private var _backgroundTimer: Timer?
+        private var _storeTimer: Timer?
         private(set) public var isBusy: Bool = false
         private var _timer: Timer?
 
@@ -119,11 +122,15 @@ extension Bismuth {
         // MARK: - Cache
         // --------------------------------------------------------
 
+        @objc
         private func _storeItemsInCache() {
-            if !_storeInCache {
-                return
+            synchronized(self) {
+                if !self._storeInCache {
+                    return
+                }
+                self._storeTimer = nil
+                self.cache.write(_items, key: _config.identifier)
             }
-            cache.write(_items, key: _config.identifier)
         }
 
         public func add(_ items: [T]) {
@@ -131,37 +138,41 @@ extension Bismuth {
         }
 
         public func add(_ item: T) {
-            // Prevent duplicate queue items
-            var newQueue = _items.filter { $0 != item }
+            synchronized(self) {
+                // Prevent duplicate queue items
+                var newQueue = self._items.filter { $0 != item }
 
-            // Reset all the `retryTime` values to 0, so we immediatelly can start the queue
-            newQueue = newQueue.map { item in
-                var item = item
-                item.bismuthRetryTime = 0
-                return item
-            }
-            _config.logProxy?("Added item to queue (position: \(newQueue.count)): \(item)")
-            newQueue.append(item)
-            _items = newQueue
+                // Reset all the `retryTime` values to 0, so we immediatelly can start the queue
+                newQueue = newQueue.map { item in
+                    var item = item
+                    item.bismuthRetryTime = 0
+                    return item
+                }
+                self._config.logProxy?("Added item to queue (position: \(newQueue.count)): \(item)")
+                newQueue.append(item)
+                self._items = newQueue
 
-            if !_config.autoStart {
-                return
-            }
-            // If the queue is not busy, start it!
-            if !isBusy {
-                _next()
+                if !self._config.autoStart {
+                    return
+                }
+                // If the queue is not busy, start it!
+                if !self.isBusy {
+                    self._next()
 
-                // Else if the queue is in a cool-down state -> retrying failed items, then interrupt that and immediatelly try again.
-                // We want to do this so any failed items would not block new queue items
-            } else if _timer != nil {
-                _timer?.invalidate()
-                _timer = nil
-                _next()
+                    // Else if the queue is in a cool-down state -> retrying failed items, then interrupt that and immediatelly try again.
+                    // We want to do this so any failed items would not block new queue items
+                } else if self._timer != nil {
+                    self._timer?.invalidate()
+                    self._timer = nil
+                    self._next()
+                }
             }
         }
 
         public func clear() {
-            _items.removeAll()
+            synchronized(self) {
+                self._items.removeAll()
+            }
         }
 
         // MARK: - Handling
@@ -176,34 +187,36 @@ extension Bismuth {
         }
 
         private func _next() {
-            guard let item = _items.first else {
-                _config.logProxy?("Queue empty")
-                isBusy = false
-                delegate?.queueFinished(self)
-                _endBackgroundTask()
-                return
-            }
-            let extra: String
-            
-            if UIApplication.shared.applicationState == .background && _backgroundTask != .invalid {
-                extra = "in background, timeout in \(round(UIApplication.shared.backgroundTimeRemaining))s"
-            } else {
-                extra = "in foreground"
-            }
+            synchronized(self) {
+                guard let item = self._items.first else {
+                    self._config.logProxy?("Queue empty")
+                    self.isBusy = false
+                    self.delegate?.queueFinished(self)
+                    self._endBackgroundTask()
+                    return
+                }
+                let extra: String
 
-            _config.logProxy?("Queue items left: \(count) (\(extra))")
-            _config.logProxy?("-=> \(item)")
-            _timer?.invalidate()
-            _timer = nil
-            isBusy = true
-            let diff = item.bismuthRetryTime - Date().timeIntervalSince1970
-            if diff <= 0 {
-                _submit(item: item)
-                return
+                if UIApplication.shared.applicationState == .background && self._backgroundTask != .invalid {
+                    extra = "in background, timeout in \(round(UIApplication.shared.backgroundTimeRemaining))s"
+                } else {
+                    extra = "in foreground"
+                }
+
+                self._config.logProxy?("Queue items left: \(self.count) (\(extra))")
+                self._config.logProxy?("-=> \(item)")
+                self._timer?.invalidate()
+                self._timer = nil
+                self.isBusy = true
+                let diff = item.bismuthRetryTime - Date().timeIntervalSince1970
+                if diff <= 0 {
+                    self._submit(item: item)
+                    return
+                }
+                self._config.logProxy?("Continuing queue after \(ceil(diff))s...")
+                self._timer = Timer(timeInterval: diff, target: self, selector: #selector(_fireTimer(_:)), userInfo: [ "item": item ], repeats: false)
+                RunLoop.main.add(self._timer!, forMode: .common)
             }
-            _config.logProxy?("Continuing queue after \(ceil(diff))s...")
-            _timer = Timer(timeInterval: diff, target: self, selector: #selector(_fireTimer(_:)), userInfo: [ "item": item ], repeats: false)
-            RunLoop.main.add(_timer!, forMode: .common)
         }
 
         private func _submit(item: T) {
@@ -264,6 +277,8 @@ extension Bismuth {
         }
 
         deinit {
+            _storeTimer?.invalidate()
+            _storeTimer = nil
             NotificationCenter.default.removeObserver(self,
                                                       name: UIApplication.didEnterBackgroundNotification,
                                                       object: nil)
