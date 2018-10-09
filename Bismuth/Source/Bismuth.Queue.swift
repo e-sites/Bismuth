@@ -25,9 +25,9 @@ extension Bismuth {
         private let _config: Bismuth.Config
         private var _storeInCache = false
 
-        let cache: Cache<Item<T>>
+        let cache: Cache<BismuthQueueItem<T>>
 
-        private var _items: [Item<T>] = [] {
+        private var _items: [BismuthQueueItem<T>] = [] {
             didSet {
                 self._storeTimer?.invalidate()
                 self._storeTimer = Timer(timeInterval: 0.25, target: self, selector: #selector(_storeItemsInCache), userInfo: nil, repeats: false)
@@ -55,7 +55,7 @@ extension Bismuth {
 
         public required init(config: Bismuth.Config) {
             _config = config
-            cache = Cache<Item<T>>()
+            cache = Cache<BismuthQueueItem<T>>()
             _items = cache.get(key: _config.identifier) ?? []
             _storeInCache = true
 
@@ -139,7 +139,7 @@ extension Bismuth {
 
         public func add(_ object: T) {
             synchronized(self) {
-                let item = Item(item: object)
+                let item = BismuthQueueItem(item: object)
                 // Prevent duplicate queue items
                 var newQueue = self._items.filter { $0 != item }
 
@@ -220,7 +220,7 @@ extension Bismuth {
             }
         }
 
-        private func _submit(item: Item<T>) {
+        private func _submit(item: BismuthQueueItem<T>) {
             delegate?.queue(self, handle: item.item) { [weak self] result in
                 guard let self = self else {
                     return
@@ -265,7 +265,7 @@ extension Bismuth {
         @objc
         private func _fireTimer(_ timer: Timer) {
             _timer = nil
-            guard let userInfo = timer.userInfo as? [String: Item<T>], let item = userInfo["item"] else {
+            guard let userInfo = timer.userInfo as? [String: BismuthQueueItem<T>], let item = userInfo["item"] else {
                 _next()
                 return
             }

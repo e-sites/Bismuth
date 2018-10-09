@@ -7,7 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		C3EF139C216C93B700B97E07 /* Bismuth.Queue.Item.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3EF139B216C93B700B97E07 /* Bismuth.Queue.Item.swift */; };
+		C3EF139C216C93B700B97E07 /* BismuthQueueItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3EF139B216C93B700B97E07 /* BismuthQueueItem.swift */; };
 		C3F723D0215C200900EAA35D /* Bismuth.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C3F723C6215C200900EAA35D /* Bismuth.framework */; };
 		C3F723D5215C200900EAA35D /* BismuthTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3F723D4215C200900EAA35D /* BismuthTests.swift */; };
 		C3F723E6215C203200EAA35D /* BismuthQueueable.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3F723E1215C203200EAA35D /* BismuthQueueable.swift */; };
@@ -29,7 +29,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		C3EF139B216C93B700B97E07 /* Bismuth.Queue.Item.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Bismuth.Queue.Item.swift; sourceTree = "<group>"; };
+		C3EF139B216C93B700B97E07 /* BismuthQueueItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BismuthQueueItem.swift; sourceTree = "<group>"; };
 		C3F723C6215C200900EAA35D /* Bismuth.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Bismuth.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		C3F723CA215C200900EAA35D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		C3F723CF215C200900EAA35D /* BismuthTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = BismuthTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -105,7 +105,7 @@
 				C3F723E4215C203200EAA35D /* Bismuth.h */,
 				C3F723E2215C203200EAA35D /* Bismuth.swift */,
 				C3F723E3215C203200EAA35D /* Bismuth.Queue.swift */,
-				C3EF139B216C93B700B97E07 /* Bismuth.Queue.Item.swift */,
+				C3EF139B216C93B700B97E07 /* BismuthQueueItem.swift */,
 				C3F723EB215C240D00EAA35D /* Bismuth.Config.swift */,
 				C3F723E1215C203200EAA35D /* BismuthQueueable.swift */,
 			);
@@ -226,7 +226,7 @@
 				C3F723E8215C203200EAA35D /* Bismuth.Queue.swift in Sources */,
 				C3F723EC215C240D00EAA35D /* Bismuth.Config.swift in Sources */,
 				C3F723EA215C203200EAA35D /* Bismut.Cache.swift in Sources */,
-				C3EF139C216C93B700B97E07 /* Bismuth.Queue.Item.swift in Sources */,
+				C3EF139C216C93B700B97E07 /* BismuthQueueItem.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
