@@ -34,7 +34,8 @@ class BismuthTests: XCTestCase {
 
     func testQueue() {
         let exp = expectation(description: "cache")
-        let config = Bismuth.Config(identifier: "unit-test")
+        let key = UUID().uuidString
+        let config = Bismuth.Config(identifier: key)
         let queue = Bismuth.Queue<QueueItem>(config: config)
         XCTAssertTrue(queue.isEmpty)
         queue.add(QueueItem())
@@ -43,7 +44,7 @@ class BismuthTests: XCTestCase {
         XCTAssertEqual(queue.count, 3)
         XCTAssertFalse(queue.isEmpty)
         DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(1)) {
-            guard let items = queue.cache.get(key: "unit-test") else {
+            guard let items = queue.cache.get(key: key) else {
                 preconditionFailure("No items")
             }
             XCTAssertEqual(items.count, queue.count)
