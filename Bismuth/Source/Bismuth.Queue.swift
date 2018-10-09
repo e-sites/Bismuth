@@ -25,9 +25,9 @@ extension Bismuth {
         private let _config: Bismuth.Config
         private var _storeInCache = false
 
-        let cache: Cache<T>
+        let cache: Cache<Item<T>>
 
-        private var _items: [T] = [] {
+        private var _items: [Item<T>] = [] {
             didSet {
                 self._storeTimer?.invalidate()
                 self._storeTimer = Timer(timeInterval: 0.25, target: self, selector: #selector(_storeItemsInCache), userInfo: nil, repeats: false)
@@ -55,7 +55,7 @@ extension Bismuth {
 
         public required init(config: Bismuth.Config) {
             _config = config
-            cache = Cache<T>()
+            cache = Cache<Item<T>>()
             _items = cache.get(key: _config.identifier) ?? []
             _storeInCache = true
 
@@ -137,15 +137,16 @@ extension Bismuth {
             items.forEach { add($0) }
         }
 
-        public func add(_ item: T) {
+        public func add(_ object: T) {
             synchronized(self) {
+                let item = Item(item: object)
                 // Prevent duplicate queue items
                 var newQueue = self._items.filter { $0 != item }
 
                 // Reset all the `retryTime` values to 0, so we immediatelly can start the queue
                 newQueue = newQueue.map { item in
                     var item = item
-                    item.bismuthRetryTime = 0
+                    item.retryTime = 0
                     return item
                 }
                 self._config.logProxy?("Added item to queue (position: \(newQueue.count)): \(item)")
@@ -208,7 +209,7 @@ extension Bismuth {
                 self._timer?.invalidate()
                 self._timer = nil
                 self.isBusy = true
-                let diff = item.bismuthRetryTime - Date().timeIntervalSince1970
+                let diff = item.retryTime - Date().timeIntervalSince1970
                 if diff <= 0 {
                     self._submit(item: item)
                     return
@@ -219,8 +220,8 @@ extension Bismuth {
             }
         }
 
-        private func _submit(item: T) {
-            delegate?.queue(self, handle: item) { [weak self] result in
+        private func _submit(item: Item<T>) {
+            delegate?.queue(self, handle: item.item) { [weak self] result in
                 guard let self = self else {
                     return
                 }
@@ -243,7 +244,7 @@ extension Bismuth {
 
                 // If a potential solvable error occurs, retry the queue item after 15s
                 // This way we can avoid infinite loops and hope the error solves itself
-                item.bismuthRetryTime = Date(timeIntervalSinceNow: self._config.reryTimeInterval).timeIntervalSince1970
+                item.retryTime = Date(timeIntervalSinceNow: self._config.reryTimeInterval).timeIntervalSince1970
 
                 // Are any other topic related items in the queue?
                 // We need to know this, because if we place the failed item at the end of the queue
@@ -264,7 +265,7 @@ extension Bismuth {
         @objc
         private func _fireTimer(_ timer: Timer) {
             _timer = nil
-            guard let userInfo = timer.userInfo as? [String: T], let item = userInfo["item"] else {
+            guard let userInfo = timer.userInfo as? [String: Item<T>], let item = userInfo["item"] else {
                 _next()
                 return
             }

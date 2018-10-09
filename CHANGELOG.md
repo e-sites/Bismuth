@@ -1,5 +1,8 @@
 # Changelog Bismuth
 
+## v1.1.0 (09-10-2018)
+- Refactored caching
+
 ## v1.0.3 (08-10-2018)
 - Fixed a memory issue related to threading
 

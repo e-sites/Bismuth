@@ -33,6 +33,7 @@ class BismuthTests: XCTestCase {
     }
 
     func testQueue() {
+        let exp = expectation(description: "cache")
         let config = Bismuth.Config(identifier: "unit-test")
         let queue = Bismuth.Queue<QueueItem>(config: config)
         XCTAssertTrue(queue.isEmpty)
@@ -41,12 +42,17 @@ class BismuthTests: XCTestCase {
         queue.add(QueueItem())
         XCTAssertEqual(queue.count, 3)
         XCTAssertFalse(queue.isEmpty)
-        guard let items = queue.cache.get(key: "unit-test") else {
-            preconditionFailure("No items")
+        DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(1)) {
+            guard let items = queue.cache.get(key: "unit-test") else {
+                preconditionFailure("No items")
+            }
+            XCTAssertEqual(items.count, queue.count)
+            queue.clear()
+            XCTAssertEqual(queue.count, 0)
+            exp.fulfill()
         }
-        XCTAssertEqual(items.count, queue.count)
-        queue.clear()
-        XCTAssertEqual(queue.count, 0)
+
+        waitForExpectations(timeout: 15, handler: nil)
     }
 
 }

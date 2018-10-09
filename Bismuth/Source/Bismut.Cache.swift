@@ -9,26 +9,16 @@
 import Foundation
 
 extension Bismuth {
-    class Cache<T: BismuthQueueable> {
+    class Cache<T: Codable> {
 
         private let _dispatchQueue = DispatchQueue(label: "com.esites.library.bismuth.cache", qos: .utility)
+        private let _jsonEncoder = JSONEncoder()
+        private let _jsonDecoder = JSONDecoder()
 
         func write(_ items: [T], key: String) {
             _dispatchQueue.async {
                 do {
-                    let jsonEncoder = JSONEncoder()
-                    var jsonArray: [[String: Any]] = []
-
-                    for item in items {
-                        let data = try jsonEncoder.encode(item)
-                        guard var dictionary = try JSONSerialization.jsonObject(with: data, options: .allowFragments) as? [String: Any] else {
-                            continue
-                        }
-                        dictionary["bismuthRetryTime"] = item.bismuthRetryTime
-                        jsonArray.append(dictionary)
-                    }
-
-                    let data = try JSONSerialization.data(withJSONObject: jsonArray, options: .prettyPrinted)
+                    let data = try self._jsonEncoder.encode(items)
 
                     self._makeCacheDirectory()
                     let cacheFile = "\(key).cache"
@@ -42,7 +32,6 @@ extension Bismuth {
 
         func get(key: String) -> [T]? {
             do {
-                let jsonDecoder = JSONDecoder()
                 let cacheFile = "\(key).cache"
                 let path = _path(for: cacheFile)
                 if !FileManager.default.fileExists(atPath: path) {
@@ -51,19 +40,8 @@ extension Bismuth {
                 guard let data = FileManager.default.contents(atPath: path) else {
                     return nil
                 }
-                guard let array = try JSONSerialization.jsonObject(with: data, options: .allowFragments) as? [[String: Any]] else {
-                    return nil
-                }
 
-                return try array.map {
-                    var dictionary = $0
-                    let retryTime = (dictionary["bismuthRetryTime"] as? TimeInterval) ?? 0
-                    dictionary.removeValue(forKey: "bismuthRetryTime")
-                    let itemData = try JSONSerialization.data(withJSONObject: dictionary, options: .prettyPrinted)
-                    var item = try jsonDecoder.decode(T.self, from: itemData)
-                    item.bismuthRetryTime = retryTime
-                    return item
-                }
+                return try self._jsonDecoder.decode([T].self, from: data)
             } catch let error {
                 print("Error getting: \(error)")
                 return nil
