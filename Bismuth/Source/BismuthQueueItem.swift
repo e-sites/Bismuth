@@ -22,7 +22,7 @@ struct BismuthQueueItem<T: BismuthQueueable>: Codable, Equatable {
         self.retryTime = retryTime
     }
     
-    static func == (lhs: Item<T>, rhs: Item<T>) -> Bool {
+    static func == (lhs: BismuthQueueItem<T>, rhs: BismuthQueueItem<T>) -> Bool {
         return lhs.item == rhs.item
     }
 }
