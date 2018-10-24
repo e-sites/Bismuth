@@ -18,6 +18,12 @@ extension Bismuth {
         case retry
         case handled
     }
+
+    public enum QueueState: Int {
+        case idle
+        case paused
+        case running
+    }
 }
 
 extension Bismuth {
@@ -43,12 +49,13 @@ extension Bismuth {
             return synchronized(self) { return _items.isEmpty }
         }
 
-        public weak var delegate: BismuthQueueDelegate?
         private var _backgroundTask: UIBackgroundTaskIdentifier = .invalid
         private var _backgroundTimer: Timer?
         private var _storeTimer: Timer?
-        private(set) public var isBusy: Bool = false
         private var _timer: Timer?
+
+        private(set) public var state: QueueState = .idle
+        public weak var delegate: BismuthQueueDelegate?
 
         // MARK: - Initialization
         // --------------------------------------------------------
@@ -79,14 +86,14 @@ extension Bismuth {
 
         @objc
         private func _didBecomeActive() {
-            if !isBusy {
+            if state == .idle && _config.autoStart {
                 start()
             }
         }
 
         @objc
         private func _didEnterBackground() {
-            if !isBusy || _backgroundTask != .invalid {
+            if state == .idle || _backgroundTask != .invalid {
                 return
             }
             _backgroundTimer?.invalidate()
@@ -133,15 +140,15 @@ extension Bismuth {
             }
         }
 
-        public func add(_ items: [T]) {
-            items.forEach { add($0) }
+        public func add(_ objects: [T]) {
+            objects.forEach { add($0) }
         }
 
         public func add(_ object: T) {
             synchronized(self) {
-                let item = BismuthQueueItem(item: object)
                 // Prevent duplicate queue items
-                var newQueue = self._items.filter { $0 != item }
+                var newQueue = self._items.filter { $0.item != object }
+                let item = BismuthQueueItem(item: object)
 
                 // Reset all the `retryTime` values to 0, so we immediatelly can start the queue
                 newQueue = newQueue.map { item in
@@ -157,7 +164,7 @@ extension Bismuth {
                     return
                 }
                 // If the queue is not busy, start it!
-                if !self.isBusy {
+                if self.state == .idle {
                     self._next()
 
                     // Else if the queue is in a cool-down state -> retrying failed items, then interrupt that and immediatelly try again.
@@ -170,30 +177,63 @@ extension Bismuth {
             }
         }
 
+        public func remove(_ item: T) {
+            synchronized(self) {
+                self._items = self._items.filter { $0.item != item }
+            }
+        }
+
         public func clear() {
             synchronized(self) {
                 self._items.removeAll()
             }
         }
 
-        // MARK: - Handling
+        // MARK: - Control
         // --------------------------------------------------------
 
+        public func pause() {
+            if state != .running {
+                return
+            }
+            state = .paused
+            _config.logProxy?("Paused queue")
+        }
+
+        public func resume() {
+            if state != .paused {
+                return
+            }
+            if isEmpty {
+                state = .idle
+                return
+            }
+            state = .running
+            _config.logProxy?("Resumed queue")
+            _next()
+        }
+
         public func start() {
-            if isBusy {
+            if state == .idle {
                 return
             }
             _config.logProxy?("Start queue (size \(count))")
             _next()
         }
 
+        // MARK: - Handling
+        // --------------------------------------------------------
+
         private func _next() {
             synchronized(self) {
                 guard let item = self._items.first else {
                     self._config.logProxy?("Queue empty")
-                    self.isBusy = false
+                    self.state = .idle
                     self.delegate?.queueFinished(self)
                     self._endBackgroundTask()
+                    return
+                }
+                if self.state == .paused {
                     return
                 }
                 let extra: String
@@ -208,7 +248,7 @@ extension Bismuth {
                 self._config.logProxy?("-=> \(item)")
                 self._timer?.invalidate()
                 self._timer = nil
-                self.isBusy = true
+                self.state = .running
                 let diff = item.retryTime - Date().timeIntervalSince1970
                 if diff <= 0 {
                     self._submit(item: item)
@@ -227,7 +267,7 @@ extension Bismuth {
                 }
 
                 if self.isEmpty {
-                    self.isBusy = false
+                    self.state = .idle
                     return
                 }
 

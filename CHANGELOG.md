@@ -1,5 +1,8 @@
 # Changelog Bismuth
 
+## v1.2.0 (24-10-2018)
+- Give more control over the queue
+- 
 ## v1.1.0 (09-10-2018)
 - Refactored caching
 

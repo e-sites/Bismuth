@@ -110,3 +110,29 @@ func queueFinished<T>(_ queue: Bismuth.Queue<T>) where T : BismuthQueueable {
 |`reryTimeInterval`|`TimeInterval`|Failed queue items will retry after x seconds|`15`|
 |`canRunInBackground`|`Bool`|Can the queue operate in the background|`true`|
 |`logProxy`|`(String) -> Void`|A closure to call for debug logging|`nil`|
+
+# Control
+
+> Pause a queue until `resume()` is called
+ 
+```swift
+func pause()
+```
+
+> Resumes a queue that was paused using `pause()`
+ 
+```swift
+func resume()
+```
+
+> Starts a queue, that is idle
+ 
+```swift
+func start()
+```
+
+> The current state of the queue (`idle`, `paused` or `running`)
+ 
+```swift
+var state: Bismuth.QueueState
+```

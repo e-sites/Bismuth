@@ -42,7 +42,16 @@ class BismuthTests: XCTestCase {
         queue.add(QueueItem())
         queue.add(QueueItem())
         XCTAssertEqual(queue.count, 3)
+        let item = QueueItem()
+        queue.add(item)
+        queue.remove(item)
+        XCTAssertEqual(queue.count, 3)
         XCTAssertFalse(queue.isEmpty)
+        XCTAssertEqual(queue.state, Bismuth.QueueState.running)
+        queue.pause()
+        XCTAssertEqual(queue.state, Bismuth.QueueState.paused)
+        queue.resume()
+        XCTAssertEqual(queue.state, Bismuth.QueueState.running)
         DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(1)) {
             guard let items = queue.cache.get(key: key) else {
                 preconditionFailure("No items")
