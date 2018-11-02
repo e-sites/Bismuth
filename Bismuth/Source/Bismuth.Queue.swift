@@ -233,19 +233,28 @@ extension Bismuth {
                     self._endBackgroundTask()
                     return
                 }
+                
                 if self.state == .paused {
                     return
                 }
-                let extra: String
 
-                if UIApplication.shared.applicationState == .background && self._backgroundTask != .invalid {
-                    extra = "in background, timeout in \(round(UIApplication.shared.backgroundTimeRemaining))s"
-                } else {
-                    extra = "in foreground"
+                if let logProxy = self._config.logProxy {
+                    let count = self.count
+                    let itemDescription = String(describing: item)
+                    DispatchQueue.main.async {
+                        let extra: String
+
+                        if UIApplication.shared.applicationState == .background && self._backgroundTask != .invalid {
+                            extra = "in background, timeout in \(round(UIApplication.shared.backgroundTimeRemaining))s"
+                        } else {
+                            extra = "in foreground"
+                        }
+
+                        logProxy("Queue items left: \(count) (\(extra))")
+                        logProxy("-=> \(itemDescription)")
+                    }
                 }
 
-                self._config.logProxy?("Queue items left: \(self.count) (\(extra))")
-                self._config.logProxy?("-=> \(item)")
                 self._timer?.invalidate()
                 self._timer = nil
                 self.state = .running

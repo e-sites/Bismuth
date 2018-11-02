@@ -1,5 +1,8 @@
 # Changelog Bismuth
 
+## v1.2.1 (02-11-2018)
+- Call `UIApplication.shared.applicationState` from main thread
+
 ## v1.2.0 (24-10-2018)
 - Give more control over the queue
 - 
