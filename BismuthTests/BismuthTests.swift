@@ -9,16 +9,35 @@
 import XCTest
 @testable import Bismuth
 
-class QueueItem: BismuthQueueable {
-    enum CodingKeys: String, CodingKey {
-        case name
-        case id
+enum HTTPMethod: String {
+    case get = "GET"
+    case post = "POST"
+    case delete = "DELETE"
+}
+
+extension HTTPMethod: Codable { }
+
+struct QueueItem: BismuthQueueable {
+    private enum CodingKeys: String, CodingKey {
+        case url
+        case httpMethod
+        case parameters
     }
-    private let id = UUID().uuidString
-    var name = "Bas"
+
+    private let uuid = UUID().uuidString
+
+    let url: String
+    let httpMethod: HTTPMethod
+    let parameters: [String: String]?
+
+    init(url: String, httpMethod: HTTPMethod = .get, parameters: [String: String]? = nil) {
+        self.url = url
+        self.httpMethod = httpMethod
+        self.parameters = parameters
+    }
 
     static func == (lhs: QueueItem, rhs: QueueItem) -> Bool {
-        return lhs.id == rhs.id
+        return lhs.uuid == rhs.uuid
     }
 }
 
@@ -38,11 +57,11 @@ class BismuthTests: XCTestCase {
         let config = Bismuth.Config(identifier: key)
         let queue = Bismuth.Queue<QueueItem>(config: config)
         XCTAssertTrue(queue.isEmpty)
-        queue.add(QueueItem())
-        queue.add(QueueItem())
-        queue.add(QueueItem())
+        queue.add(QueueItem(url: "https://www.google.com"))
+        queue.add(QueueItem(url: "https://www.google.com/new", httpMethod: .post, parameters: [ "name": "Bas" ]))
+        queue.add(QueueItem(url: "https://www.e-sites.nl/api/item/1", httpMethod: .delete))
         XCTAssertEqual(queue.count, 3)
-        let item = QueueItem()
+        let item = QueueItem(url: "https://www.e-sites.nl")
         queue.add(item)
         queue.remove(item)
         XCTAssertEqual(queue.count, 3)

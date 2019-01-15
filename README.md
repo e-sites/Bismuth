@@ -32,30 +32,30 @@ pod install
 
 ```swift
 import Bismuth
+import Alamofire
 
-struct AmazonSNSQueueItem: BismuthQueueable {
-    enum CodingKeys: String, CodingKey {
-        case type
-        case topic
-        case uuid
+extension Alamofire.HTTPMethod: Codable { }
+
+struct RequestQueueItem: BismuthQueueable {
+    private enum CodingKeys: String, CodingKey {
+        case url
+        case httpMethod
+        case parameters
     }
     
-    enum QueueType: String, Codable {
-        case subscribe
-        case unsubscribe
-    }
+    private let uuid = UUID().uuidString
 
-    private var uuid = UUID().uuidString
+    let url: String
+    let httpMethod: HTTPMethod
+    let parameters: [String: String]?
 
-    let type: QueueType
-    let topic: String
-
-    init(topic: String, type: QueueType) {
-        self.topic = topic
-        self.type = type
+    init(url: String, httpMethod: HTTPMethod = .get, parameters: [String: String]? = nil) {
+        self.url = url
+        self.httpMethod = httpMethod
+        self.parameters = parameters
      }
 
-    static func == (lhs: AmazonSNS.Queue.Item, rhs: AmazonSNS.Queue.Item) -> Bool {
+    static func == (lhs: RequestQueueItem, rhs: RequestQueueItem) -> Bool {
         return lhs.uuid == rhs.uuid
     }
 }
@@ -63,37 +63,39 @@ struct AmazonSNSQueueItem: BismuthQueueable {
 
 ```swift
 func configure() {
-	var config = Bismuth.Config(identifier: "amazon-sns")
+	var config = Bismuth.Config(identifier: "api-requests")
 	config.logProxy = { line in
-	    print("[SNS] \(line)")
+	    print("[REQ] \(line)")
 	}
 	config.autoStart = false // Default: true
 	config.canRunInBackground = false // Default: true
 	config.retryTime = 30 // Default: 15
 	
-	queue = Bismuth.Queue<AmazonSNSQueueItem>(config: config)
+	queue = Bismuth.Queue<RequestQueueItem>(config: config)
 	queue.delegate = self
-	queue.add(AmazonSNSQueueItem(topic: "topic-1", type: .subscribe))
-	queue.add(AmazonSNSQueueItem(topic: "topic-2", type: .subscribe))
-	queue.add(AmazonSNSQueueItem(topic: "topic-3", type: .subscribe))
-	queue.add(AmazonSNSQueueItem(topic: "topic-4", type: .subscribe))
+	queue.add(RequestQueueItem(url: "https://domain.com/api/get"))
+	queue.add(RequestQueueItem(url: "https://domain.com/api/post", httpMethod: .post, parameters: [ "name": "Bas" ]))
+	queue.add(RequestQueueItem(url: "https://domain.com/api/items/3", httpMethod: .delete))
 }
 
 // BismuthQueueDelegate functions
 
 func queue<T>(_ queue: Bismuth.Queue<T>, handle item: T, completion: @escaping (Bismuth.HandleResult) -> Void) where T : BismuthQueueable {
-	guard let item = item as? AmazonSNSQueueItem else {
+	guard let item = item as? RequestQueueItem else {
         completion(.handled)
         return
     }
     
     // Do stuff with the queue item
-    doStuff { error in 
-    	if error == nil {
-    	    completion(.handled)
-    	} else {
-    	    completion(.retry)
-       }    	
+    Alamofire.request(item.url, method: item.httpMethod, parameters: item.parameters)
+    .validate()
+    .responseJSON { response in
+         switch response.result {
+         case .success:
+             completion(.handled)
+         case .failure(let error):
+             completion(.retry)
+        }
     }
 }
 
