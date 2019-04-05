@@ -10,6 +10,5 @@ Pod::Spec.new do |s|
   s.source         = { :git => "https://github.com/e-sites/#{s.name}.git", :tag => s.version.to_s }
   s.source_files   = "Bismuth/**/*.{h,swift}"
   s.requires_arc   = true
-  s.swift_version = '5.0'
   s.frameworks     = 'Foundation'
 end
