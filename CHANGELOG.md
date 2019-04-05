@@ -1,5 +1,8 @@
 # Changelog Bismuth
 
+## v1.3.0 (05-04-2019)
+- Swift 5.0
+
 ## v1.2.1 (02-11-2018)
 - Call `UIApplication.shared.applicationState` from main thread
 
