@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name           = "Bismuth"
-  s.version        = "1.3.0"
+  s.version        = "1.3.1"
   s.platform       = :ios
   s.ios.deployment_target = "9.0"
   s.summary        = "Queue handling"
@@ -11,4 +11,5 @@ Pod::Spec.new do |s|
   s.source_files   = "Bismuth/**/*.{h,swift}"
   s.requires_arc   = true
   s.frameworks     = 'Foundation'
+  s.swift_versions = [ '4.2', '5.0' ]
 end

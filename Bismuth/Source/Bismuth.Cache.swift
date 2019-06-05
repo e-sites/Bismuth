@@ -1,5 +1,5 @@
 //
-//  Bismut.Cache.swift
+//  Bismuth.Cache.swift
 //  Bismuth
 //
 //  Created by Bas van Kuijck on 26/09/2018.

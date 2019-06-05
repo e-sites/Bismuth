@@ -14,7 +14,7 @@
 		C3F723E7215C203200EAA35D /* Bismuth.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3F723E2215C203200EAA35D /* Bismuth.swift */; };
 		C3F723E8215C203200EAA35D /* Bismuth.Queue.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3F723E3215C203200EAA35D /* Bismuth.Queue.swift */; };
 		C3F723E9215C203200EAA35D /* Bismuth.h in Headers */ = {isa = PBXBuildFile; fileRef = C3F723E4215C203200EAA35D /* Bismuth.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		C3F723EA215C203200EAA35D /* Bismut.Cache.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3F723E5215C203200EAA35D /* Bismut.Cache.swift */; };
+		C3F723EA215C203200EAA35D /* Bismuth.Cache.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3F723E5215C203200EAA35D /* Bismuth.Cache.swift */; };
 		C3F723EC215C240D00EAA35D /* Bismuth.Config.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3F723EB215C240D00EAA35D /* Bismuth.Config.swift */; };
 /* End PBXBuildFile section */
 
@@ -39,7 +39,7 @@
 		C3F723E2215C203200EAA35D /* Bismuth.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Bismuth.swift; sourceTree = "<group>"; };
 		C3F723E3215C203200EAA35D /* Bismuth.Queue.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Bismuth.Queue.swift; sourceTree = "<group>"; };
 		C3F723E4215C203200EAA35D /* Bismuth.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Bismuth.h; sourceTree = "<group>"; };
-		C3F723E5215C203200EAA35D /* Bismut.Cache.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Bismut.Cache.swift; sourceTree = "<group>"; };
+		C3F723E5215C203200EAA35D /* Bismuth.Cache.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Bismuth.Cache.swift; sourceTree = "<group>"; };
 		C3F723EB215C240D00EAA35D /* Bismuth.Config.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Bismuth.Config.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -101,7 +101,7 @@
 		C3F723E0215C200F00EAA35D /* Source */ = {
 			isa = PBXGroup;
 			children = (
-				C3F723E5215C203200EAA35D /* Bismut.Cache.swift */,
+				C3F723E5215C203200EAA35D /* Bismuth.Cache.swift */,
 				C3F723E4215C203200EAA35D /* Bismuth.h */,
 				C3F723E2215C203200EAA35D /* Bismuth.swift */,
 				C3F723E3215C203200EAA35D /* Bismuth.Queue.swift */,
@@ -225,7 +225,7 @@
 				C3F723E6215C203200EAA35D /* BismuthQueueable.swift in Sources */,
 				C3F723E8215C203200EAA35D /* Bismuth.Queue.swift in Sources */,
 				C3F723EC215C240D00EAA35D /* Bismuth.Config.swift in Sources */,
-				C3F723EA215C203200EAA35D /* Bismut.Cache.swift in Sources */,
+				C3F723EA215C203200EAA35D /* Bismuth.Cache.swift in Sources */,
 				C3EF139C216C93B700B97E07 /* BismuthQueueItem.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

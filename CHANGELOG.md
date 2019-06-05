@@ -1,5 +1,8 @@
 # Changelog Bismuth
 
+## v1.3.1 (05-06-2019)
+- CocoaPods 1.7.0
+
 ## v1.3.0 (05-04-2019)
 - Swift 5.0
 
