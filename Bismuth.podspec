@@ -7,7 +7,7 @@ Pod::Spec.new do |s|
   s.author         = { "Bas van Kuijck" => "bas@e-sites.nl" }
   s.license        = { :type => "MIT", :file => "LICENSE" }
   s.homepage       = "https://github.com/e-sites/#{s.name}"
-  s.source         = { :git => "https://github.com/e-sites/#{s.name}.git", :tag => s.version.to_s }
+  s.source         = { :git => "https://github.com/e-sites/#{s.name}.git", :tag => "v#{s.version.to_s}" }
   s.source_files   = "Bismuth/**/*.{h,swift}"
   s.requires_arc   = true
   s.frameworks     = 'Foundation'
