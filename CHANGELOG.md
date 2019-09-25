@@ -1,5 +1,8 @@
 # Changelog Bismuth
 
+## v1.3.2 (25-09-2019)
+- Swift PM
+
 ## v1.3.1 (05-06-2019)
 - CocoaPods 1.7.0
 

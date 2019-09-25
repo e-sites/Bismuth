@@ -1,9 +1,12 @@
-// swift-tools-version:5.0
+// swift-tools-version:5.1
 
 import PackageDescription
 
 let package = Package(
     name: "Bismuth",
+    platforms: [
+        .iOS(.v9),
+    ],
     products: [
         .library(
             name: "Bismuth",
@@ -16,6 +19,8 @@ let package = Package(
             dependencies: []
         .testTarget(
             name: "BismuthTests",
-            dependencies: ["Bismuth"])
-        ]
+            dependencies: ["Bismuth"]
+          )
+      ]
+    swiftLanguageVersions: [ .v4, .v5 ]
 )
