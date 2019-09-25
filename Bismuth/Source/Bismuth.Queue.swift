@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import UIKit
 
 public protocol BismuthQueueDelegate: class {
     func queue<T>(_ queue: Bismuth.Queue<T>, handle item: T, completion: @escaping (Bismuth.HandleResult) -> Void)  where T : BismuthQueueable

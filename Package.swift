@@ -5,22 +5,17 @@ import PackageDescription
 let package = Package(
     name: "Bismuth",
     platforms: [
-        .iOS(.v9),
+        .iOS(.v9)
     ],
     products: [
-      .library(
-          name: "Bismuth",
-          targets: ["Bismuth"]),
+      .library(name: "Bismuth", targets: ["Bismuth"])
     ],
     dependencies: [],
     targets: [
         .target(
             name: "Bismuth",
-            dependencies: []
-        ),
-        .testTarget(
-            name: "BismuthTests",
-            dependencies: ["Bismuth"]
+            dependencies: [],
+            path: "Bismuth/Source"
         )
     ],
     swiftLanguageVersions: [ .v4, .v5 ]
