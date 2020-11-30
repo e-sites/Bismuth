@@ -73,13 +73,13 @@ extension Bismuth {
 
             if config.canRunInBackground {
                 NotificationCenter.default.addObserver(self,
-                                                       selector: #selector(didEnterBackground),
+                                                       selector: #selector(handleAppDidEnterBackground),
                                                        name: UIApplication.didEnterBackgroundNotification,
                                                        object: nil)
             }
             if config.autoStart {
                 NotificationCenter.default.addObserver(self,
-                                                       selector: #selector(didBecomeActive),
+                                                       selector: #selector(handleAppDidBecomeActive),
                                                        name: UIApplication.didBecomeActiveNotification,
                                                        object: nil)
 
@@ -90,14 +90,14 @@ extension Bismuth {
         // --------------------------------------------------------
 
         @objc
-        private func didBecomeActive() {
+        private func handleAppDidBecomeActive() {
             if state == .idle && _config.autoStart {
                 start()
             }
         }
 
         @objc
-        private func didEnterBackground() {
+        private func handleAppDidEnterBackground() {
             if state == .idle || _backgroundTask != .invalid {
                 return
             }
@@ -106,19 +106,19 @@ extension Bismuth {
             let time = UIApplication.shared.backgroundTimeRemaining - 5
             _backgroundTimer = Timer(timeInterval: time,
                                      target: self,
-                                     selector: #selector(_endBackgroundTask),
+                                     selector: #selector(handleAppEndBackgroundTask),
                                      userInfo: nil,
                                      repeats: false)
             RunLoop.main.add(_backgroundTimer!, forMode: .common)
 
             _backgroundTask = UIApplication.shared.beginBackgroundTask { [weak self] in
                 self?._config.logProxy?("Background task not finished in \(time)s.")
-                self?._endBackgroundTask()
+                self?.handleAppEndBackgroundTask()
             }
         }
 
         @objc
-        private func _endBackgroundTask() {
+        private func handleAppEndBackgroundTask() {
             if !_config.canRunInBackground {
                 return
             }
@@ -235,7 +235,7 @@ extension Bismuth {
                     self._config.logProxy?("Queue empty")
                     self.state = .idle
                     self.delegate?.queueFinished(self)
-                    self._endBackgroundTask()
+                    self.handleAppEndBackgroundTask()
                     return
                 }
                 

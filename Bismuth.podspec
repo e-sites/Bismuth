@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name           = "Bismuth"
-  s.version        = "1.3.4"
+  s.version        = "1.3.5"
   s.platform       = :ios
   s.ios.deployment_target = "10.0"
   s.summary        = "Queue handling"
