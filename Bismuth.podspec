@@ -1,8 +1,8 @@
 Pod::Spec.new do |s|
   s.name           = "Bismuth"
-  s.version        = "1.3.2"
+  s.version        = "1.3.3"
   s.platform       = :ios
-  s.ios.deployment_target = "9.0"
+  s.ios.deployment_target = "10.0"
   s.summary        = "Queue handling"
   s.author         = { "Bas van Kuijck" => "bas@e-sites.nl" }
   s.license        = { :type => "MIT", :file => "LICENSE" }

@@ -1,5 +1,8 @@
 # Changelog Bismuth
 
+## v1.3.3 (30-11-2020)
+- Items
+
 ## v1.3.2 (25-09-2019)
 - Swift PM
 
