@@ -80,7 +80,7 @@ func configure() {
 
 // BismuthQueueDelegate functions
 
-func queue<T>(_ queue: Bismuth.Queue<T>, handle item: T, completion: @escaping (Bismuth.HandleResult) -> Void) where T : BismuthQueueable {
+func queue<T>(_ queue: Bismuth.Queue<T>, handle item: T, attempts: Int, completion: @escaping (Bismuth.HandleResult) -> Void) where T : BismuthQueueable {
 	guard let item = item as? RequestQueueItem else {
         completion(.handled)
         return
@@ -94,7 +94,11 @@ func queue<T>(_ queue: Bismuth.Queue<T>, handle item: T, completion: @escaping (
          case .success:
              completion(.handled)
          case .failure(let error):
-             completion(.retry)
+             if attempts >= 5 {
+                 completion(.handled)
+             } else {
+                 completion(.retry)
+             }
         }
     }
 }

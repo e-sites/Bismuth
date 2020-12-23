@@ -9,5 +9,4 @@
 import Foundation
 
 public protocol BismuthQueueable: Equatable, Codable {
-    
 }

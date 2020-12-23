@@ -1,5 +1,8 @@
 # Changelog Bismuth
 
+## v2.0.0 (23-12-2020)
+- Keep track of the (failed) attempts
+
 ## v1.3.5 (30-11-2020)
 - Changed private api names
 

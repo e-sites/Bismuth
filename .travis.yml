@@ -1,5 +1,5 @@
 language: objective-c
-osx_image: xcode10.2
+osx_image: xcode12.3
 
 script:
   - xcodebuild -project Bismuth.xcodeproj -scheme Bismuth -configuration Debug -sdk iphonesimulator -destination 'platform=iOS Simulator,name=iPhone 8' clean build test

@@ -10,7 +10,7 @@ import Foundation
 import UIKit
 
 public protocol BismuthQueueDelegate: class {
-    func queue<T>(_ queue: Bismuth.Queue<T>, handle item: T, completion: @escaping (Bismuth.HandleResult) -> Void)  where T : BismuthQueueable
+    func queue<T>(_ queue: Bismuth.Queue<T>, handle item: T, attempt: Int, completion: @escaping (Bismuth.HandleResult) -> Void) where T : BismuthQueueable
     func queueFinished<T>(_ queue: Bismuth.Queue<T>) where T : BismuthQueueable
 }
 
@@ -275,7 +275,7 @@ extension Bismuth {
         }
 
         private func _submit(item: BismuthQueueItem<T>) {
-            delegate?.queue(self, handle: item.item) { [weak self] result in
+            delegate?.queue(self, handle: item.item, attempt: item.attempts) { [weak self] result in
                 guard let self = self else {
                     return
                 }
@@ -295,6 +295,7 @@ extension Bismuth {
                 if result == .handled {
                     return
                 }
+                item.attempts += 1
 
                 // If a potential solvable error occurs, retry the queue item after 15s
                 // This way we can avoid infinite loops and hope the error solves itself
